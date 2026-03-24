@@ -9,7 +9,7 @@ public class PlayerControl : MonoBehaviour
 
     [Header("Gravity (Custom F=ma)")]
     public float gravityStrength = 9.81f;
-    private bool isFlipped = false;
+    public bool isFlipped = false;
 
     [Header("Ground Check")]
     public float checkRadius = 0.55f;
