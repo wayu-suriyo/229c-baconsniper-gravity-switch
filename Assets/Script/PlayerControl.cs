@@ -16,13 +16,19 @@ public class PlayerControl : MonoBehaviour
     public LayerMask groundLayer;
     private bool isGrounded = false;
 
+    [Header("Audio Settings")]
+    public AudioClip flipUpSound;   // เสียงตอนแรงโน้มถ่วงกลับหัว (ขึ้นเพดาน)
+    public AudioClip flipDownSound; // เสียงตอนแรงโน้มถ่วงปกติ (ลงพื้น)
+
+    [Range(0f, 1f)]
+    public float flipVolume = 0.5f;
+
     private Rigidbody rb;
     private float moveInput = 0f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        // ปิด Use Gravity ของ Unity
         rb.useGravity = false;
     }
 
@@ -33,17 +39,31 @@ public class PlayerControl : MonoBehaviour
 
     void OnJump()
     {
+        // ถ้าไม่แตะพื้น ห้ามกดสลับ
         if (!isGrounded) return;
 
         isFlipped = !isFlipped;
 
-        // reset velocity แกน Y ตอน flip ให้การตกดูสม่ำเสมอ
+        // เช็คว่าตอนนี้แรงโน้มถ่วงไปทางไหน แล้วเล่นเสียงให้ถูกอัน
+        if (isFlipped)
+        {
+            // ลอยขึ้นเพดาน
+            if (flipUpSound != null)
+                AudioSource.PlayClipAtPoint(flipUpSound, transform.position, flipVolume);
+        }
+        else
+        {
+            // ตกลงพื้นปกติ
+            if (flipDownSound != null)
+                AudioSource.PlayClipAtPoint(flipDownSound, transform.position, flipVolume);
+        }
+
+        // reset velocity แกน Y ตอน flip
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, 0);
     }
 
     void FixedUpdate()
     {
-        // 1. เช็คพื้น
         Vector3 checkDirection = isFlipped ? Vector3.up : Vector3.down;
         isGrounded = Physics.CheckSphere(
             transform.position + checkDirection * 0.5f,
@@ -51,18 +71,16 @@ public class PlayerControl : MonoBehaviour
             groundLayer
         );
 
-        // 2. คำนวณและใส่แรงโน้มถ่วง (F = ma)
+        // F = ma เก็บแต้มฟิสิกส์
         float acceleration = isFlipped ? gravityStrength : -gravityStrength;
-        float gravityForce = rb.mass * acceleration; // สูตร F = ma
+        float gravityForce = rb.mass * acceleration;
         rb.AddForce(new Vector3(0, gravityForce, 0), ForceMode.Force);
 
-        // 3. การเคลื่อนที่แกน X
         float targetVelocityX = moveInput * moveSpeed;
         float lerpSpeed = moveInput != 0 ? 8f : 20f;
         float smoothedX = Mathf.Lerp(rb.linearVelocity.x, targetVelocityX, Time.fixedDeltaTime * lerpSpeed);
         rb.linearVelocity = new Vector3(smoothedX, rb.linearVelocity.y, 0);
 
-        // 4. กลิ้งเฉพาะตอนแตะพื้น
         if (isGrounded)
         {
             rb.AddTorque(Vector3.forward * -moveInput * torqueStrength);
