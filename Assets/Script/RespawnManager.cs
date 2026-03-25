@@ -37,7 +37,7 @@ public class RespawnManager : MonoBehaviour
         }
     }
 
-    void Respawn()
+    public void Respawn()
     {
         transform.position = spawnPoint.position;
         rb.linearVelocity = Vector3.zero;
