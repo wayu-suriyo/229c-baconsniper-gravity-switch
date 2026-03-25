@@ -11,24 +11,29 @@ public class CameraFollow : MonoBehaviour
     public float minHeight = 4f;  // ความสูงด่านขั้นต่ำที่คาดไว้
     public float maxHeight = 16f; // ความสูงด่านสูงสุดที่คาดไว้
 
-    private PlayerControl playerControl;
+    [Header("Layer Setup")]
+    public LayerMask groundLayer; // เอาไว้กัน Raycast ไปชนเหรียญหรือหนาม
+
+    private PlayerControl playerController;
     private float currentLevelHeight;
 
     void Start()
     {
-        playerControl = target.GetComponent<PlayerControl>();
+        // แก้ให้ชื่อตัวแปรตรงกัน
+        playerController = target.GetComponent<PlayerControl>();
     }
 
     void FixedUpdate()
     {
-        // ยิง Raycast หาพื้นและเพดานจากตำแหน่งบอล
-        float distToFloor = 999f;
-        float distToCeiling = 999f;
+        // ตั้งค่าเผื่อไว้เวลาหลุดแมพ กล้องจะได้ไม่บัคปลิวไปที่ระยะ 999
+        float distToFloor = 5f;
+        float distToCeiling = 5f;
 
-        if (Physics.Raycast(target.position, Vector3.down, out RaycastHit hitFloor))
+        // เติมระยะ ray 50f และ LayerMask ให้มันหาแต่พื้นจริงๆ
+        if (Physics.Raycast(target.position, Vector3.down, out RaycastHit hitFloor, 50f, groundLayer))
             distToFloor = hitFloor.distance;
 
-        if (Physics.Raycast(target.position, Vector3.up, out RaycastHit hitCeiling))
+        if (Physics.Raycast(target.position, Vector3.up, out RaycastHit hitCeiling, 50f, groundLayer))
             distToCeiling = hitCeiling.distance;
 
         // ความสูงรวมของด่าน

@@ -22,7 +22,7 @@ public class PlayerControl : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        // ปิด Use Gravity ของ Unity เพราะเราจะคำนวณเองเอาคะแนน
+        // ปิด Use Gravity ของ Unity
         rb.useGravity = false;
     }
 
@@ -51,7 +51,7 @@ public class PlayerControl : MonoBehaviour
             groundLayer
         );
 
-        // 2. คำนวณและใส่แรงโน้มถ่วงด้วยตัวเอง (F = ma) -> เก็บแต้มหัวข้อ C + Coding 2 คะแนนเต็ม
+        // 2. คำนวณและใส่แรงโน้มถ่วง (F = ma)
         float acceleration = isFlipped ? gravityStrength : -gravityStrength;
         float gravityForce = rb.mass * acceleration; // สูตร F = ma
         rb.AddForce(new Vector3(0, gravityForce, 0), ForceMode.Force);
@@ -62,7 +62,7 @@ public class PlayerControl : MonoBehaviour
         float smoothedX = Mathf.Lerp(rb.linearVelocity.x, targetVelocityX, Time.fixedDeltaTime * lerpSpeed);
         rb.linearVelocity = new Vector3(smoothedX, rb.linearVelocity.y, 0);
 
-        // 4. กลิ้งเฉพาะตอนแตะพื้น (เก็บแต้มหัวข้อ F)
+        // 4. กลิ้งเฉพาะตอนแตะพื้น
         if (isGrounded)
         {
             rb.AddTorque(Vector3.forward * -moveInput * torqueStrength);
