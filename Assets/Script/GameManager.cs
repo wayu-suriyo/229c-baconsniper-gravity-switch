@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     private int currentScore = 0;
     private int totalCoins = 0;
     private float currentTime = 0f;
-    private bool isGameActive = true;
+    public bool isGameActive = true;
 
     void Start()
     {
