@@ -1746,6 +1746,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Plasma Sphere
       objectReference: {fileID: 0}
+    - target: {fileID: 5364677509023667755, guid: dc44a70bb308cb746932ffa34ca54639, type: 3}
+      propertyPath: m_TagString
+      value: Coin
+      objectReference: {fileID: 0}
     - target: {fileID: 7973524332648121361, guid: dc44a70bb308cb746932ffa34ca54639, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4.11
@@ -1811,6 +1815,10 @@ PrefabInstance:
       propertyPath: scoreText
       value: 
       objectReference: {fileID: 477612868}
+    - target: {fileID: 7088790142428541145, guid: 9e396455256a8d444a6915f54d801cb4, type: 3}
+      propertyPath: finishLineObject
+      value: 
+      objectReference: {fileID: 1544024618}
     - target: {fileID: 7682862802653962045, guid: 9e396455256a8d444a6915f54d801cb4, type: 3}
       propertyPath: m_LocalPosition.x
       value: -8.45
