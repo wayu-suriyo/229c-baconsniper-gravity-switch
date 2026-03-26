@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement; 
 
 public class GameManager : MonoBehaviour
 {
@@ -11,23 +12,24 @@ public class GameManager : MonoBehaviour
     public TMP_Text timeText;
 
     [Header("Level Progress")]
-    public GameObject finishLineObject; // ช่องสำหรับใส่ประตูเส้นชัย
+    public GameObject finishLineObject;
+
+    [Header("Level Complete UI")]
+    public GameObject levelCompletePanel; 
+    public TMP_Text summaryTimeText;      
 
     private int currentScore = 0;
-    private int totalCoins = 0; // จำนวน Plasma ทั้งหมดในด่าน
+    private int totalCoins = 0;
     private float currentTime = 0f;
     private bool isGameActive = true;
 
     void Start()
     {
-        // นับจำนวนของที่มี Tag Coin ทั้งหมดในด่านตอนเริ่มเกม
         totalCoins = GameObject.FindGameObjectsWithTag("Coin").Length;
 
-        // ซ่อนเส้นชัยไว้ก่อนตั้งแต่เริ่ม
-        if (finishLineObject != null)
-        {
-            finishLineObject.SetActive(false);
-        }
+        if (finishLineObject != null) finishLineObject.SetActive(false);
+
+        if (levelCompletePanel != null) levelCompletePanel.SetActive(false);
 
         UpdateScoreUI();
     }
@@ -46,15 +48,34 @@ public class GameManager : MonoBehaviour
         currentScore += amount;
         UpdateScoreUI();
 
-        // เช็คว่าเก็บครบยัง
         if (currentScore >= totalCoins)
         {
-            // ถ้าเก็บครบแล้ว ให้เปิดใช้งานเส้นชัย
-            if (finishLineObject != null)
-            {
-                finishLineObject.SetActive(true);
-            }
+            if (finishLineObject != null) finishLineObject.SetActive(true);
         }
+    }
+
+    public void StopTimer()
+    {
+        isGameActive = false;
+    }
+
+    public void ShowLevelComplete()
+    {
+        if (levelCompletePanel != null)
+        {
+            levelCompletePanel.SetActive(true);
+            summaryTimeText.text = "Clear Time: " + currentTime.ToString("F2") + " s";
+        }
+    }
+
+    public void LoadNextStage(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
+    }
+
+    public void LoadMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 
     private void UpdateScoreUI()
