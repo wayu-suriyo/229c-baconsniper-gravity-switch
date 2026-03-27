@@ -208,6 +208,8 @@ MonoBehaviour:
   flipUpSound: {fileID: 8300000, guid: 360aeb2d2db436d45ad8d1b5f8bb2ee6, type: 3}
   flipDownSound: {fileID: 8300000, guid: eb69cc6820b2fa547a1e413c535df1ac, type: 3}
   flipVolume: 0.5
+  moveSound: {fileID: 0}
+  maxMoveVolume: 0.5
 --- !u!114 &2546106341250751223
 MonoBehaviour:
   m_ObjectHideFlags: 0
