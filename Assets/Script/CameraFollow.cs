@@ -1,140 +1,117 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Camera))]
 public class CameraFollow : MonoBehaviour
 {
     public Transform target;
-    public float smoothSpeed = 10f;
 
-    [Header("Zoom")]
+    [Header("Camera Speeds")]
+    public float smoothSpeed = 5f; // ความเร็วกล้องตามผู้เล่น
+    public float zoomSpeed = 3f;   // ความเร็วตอนซูม (แยกออกมาจะได้ปรับให้ซูมนุ่มๆ ได้)
+
+    [Header("Zoom Settings")]
     public float minZ = -8f;
     public float maxZ = -20f;
-    public float edgePadding = 1.5f;
+    public float minHeight = 4f;
+    public float maxHeight = 16f;
 
-    [Header("Raycast")]
+    [Header("Raycast Penetration")]
     public float rayDistance = 50f;
     public LayerMask groundLayer;
 
-    [Header("Fallback")]
-    public float defaultFloorDistance = 5f;
-    public float defaultCeilingDistance = 5f;
+    [Header("Anti-Jerk (กันกล้องกระชาก)")]
+    public float fallbackDistance = 5f; // ระยะซูมเริ่มต้นถ้าหาพื้นไม่เจอ
+    public float memoryTime = 0.5f;     // เวลาที่กล้องจะ "จำ" ระยะเดิมไว้ (วินาที)
 
-    [Header("Anti Jitter")]
-    public float missingGraceTime = 0.25f;   // หายชั่วคราวให้ใช้ค่าก่อนหน้าไปก่อน
-    public float zoomSmoothTime = 0.15f;     // ยิ่งมากยิ่งนุ่ม
-    public float positionSmoothTime = 0.12f; // ความนิ่งของตำแหน่งกล้อง
+    // ตัวแปรความจำกล้อง
+    private float lastGoodFloorY;
+    private float lastGoodCeilingY;
+    private float floorTimer;
+    private float ceilingTimer;
 
-    private Camera cam;
-
-    private float lastGoodBottomY;
-    private float lastGoodTopY;
-    private float lastGoodTime = -999f;
-    private bool hasLastGoodBounds = false;
-
-    private float zVelocity;
-    private float yVelocity;
-
-    void Awake()
+    void Start()
     {
-        cam = GetComponent<Camera>();
+        if (target != null)
+        {
+            // ตั้งค่าเริ่มต้นกันเหนียว
+            lastGoodFloorY = target.position.y - fallbackDistance;
+            lastGoodCeilingY = target.position.y + fallbackDistance;
+        }
     }
 
-    void LateUpdate()
+    void FixedUpdate()
     {
-        if (target == null || cam == null) return;
+        if (target == null) return;
 
-        float bottomY, topY;
-        bool hasBounds = TryGetVerticalBounds(out bottomY, out topY);
+        // เช็คพื้นล่าง
+        RaycastHit[] downHits = Physics.RaycastAll(target.position, Vector3.down, rayDistance, groundLayer);
+        bool foundFloor = false;
+        float lowestFloorY = target.position.y; // ตั้งต้นไว้ที่ตัวผู้เล่น
 
-        // ถ้าเจอครบ 2 ฝั่ง หรือเจอค่าที่เชื่อถือได้ ให้บันทึกไว้
-        if (hasBounds)
+        foreach (RaycastHit hit in downHits)
         {
-            lastGoodBottomY = bottomY;
-            lastGoodTopY = topY;
-            lastGoodTime = Time.time;
-            hasLastGoodBounds = true;
+            if (!foundFloor || hit.point.y < lowestFloorY)
+            {
+                lowestFloorY = hit.point.y;
+                foundFloor = true;
+            }
         }
-        else if (hasLastGoodBounds && Time.time - lastGoodTime <= missingGraceTime)
+
+        // ระบบความจำ (ถ้าเจอพื้นให้จำไว้ ถ้าไม่เจอให้รอแป๊บนึง)
+        if (foundFloor)
         {
-            // หายแป๊บเดียว ใช้ค่าล่าสุดไปก่อน
-            bottomY = lastGoodBottomY;
-            topY = lastGoodTopY;
+            lastGoodFloorY = lowestFloorY;
+            floorTimer = 0f; // รีเซ็ตเวลา
         }
         else
         {
-            // ไม่มีข้อมูลจริง ใช้ fallback
-            bottomY = target.position.y - defaultFloorDistance;
-            topY = target.position.y + defaultCeilingDistance;
+            floorTimer += Time.fixedDeltaTime;
+            if (floorTimer <= memoryTime)
+                lowestFloorY = lastGoodFloorY; // ยังไม่หมดเวลา ใช้ค่าเดิมไปก่อน
+            else
+                lowestFloorY = target.position.y - fallbackDistance; // หมดเวลาแล้ว ยอมแพ้ กลับไปใช้ค่า default
         }
 
-        bottomY -= edgePadding;
-        topY += edgePadding;
+        // 2. เช็คเพดานบน
+        RaycastHit[] upHits = Physics.RaycastAll(target.position, Vector3.up, rayDistance, groundLayer);
+        bool foundCeiling = false;
+        float highestCeilingY = target.position.y;
 
-        float span = Mathf.Max(0.1f, topY - bottomY);
-        float centerY = (bottomY + topY) * 0.5f;
-
-        float halfSpan = span * 0.5f;
-        float distance = halfSpan / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
-
-        float targetZ = Mathf.Clamp(target.position.z - distance, maxZ, minZ);
-
-        float smoothY = Mathf.SmoothDamp(transform.position.y, centerY, ref yVelocity, positionSmoothTime);
-        float smoothZ = Mathf.SmoothDamp(transform.position.z, targetZ, ref zVelocity, zoomSmoothTime);
-
-        Vector3 desiredPos = new Vector3(target.position.x, smoothY, smoothZ);
-
-        transform.position = Vector3.Lerp(
-            transform.position,
-            desiredPos,
-            Time.deltaTime * smoothSpeed
-        );
-    }
-
-    bool TryGetVerticalBounds(out float bottomY, out float topY)
-    {
-        bottomY = target.position.y;
-        topY = target.position.y;
-
-        bool foundDown = false;
-        bool foundUp = false;
-
-        RaycastHit[] downHits = Physics.RaycastAll(
-            target.position,
-            Vector3.down,
-            rayDistance,
-            groundLayer,
-            QueryTriggerInteraction.Ignore
-        );
-
-        for (int i = 0; i < downHits.Length; i++)
+        foreach (RaycastHit hit in upHits)
         {
-            float y = downHits[i].point.y;
-            if (!foundDown || y < bottomY)
+            if (!foundCeiling || hit.point.y > highestCeilingY)
             {
-                bottomY = y;
-                foundDown = true;
+                highestCeilingY = hit.point.y;
+                foundCeiling = true;
             }
         }
 
-        RaycastHit[] upHits = Physics.RaycastAll(
-            target.position,
-            Vector3.up,
-            rayDistance,
-            groundLayer,
-            QueryTriggerInteraction.Ignore
-        );
-
-        for (int i = 0; i < upHits.Length; i++)
+        if (foundCeiling)
         {
-            float y = upHits[i].point.y;
-            if (!foundUp || y > topY)
-            {
-                topY = y;
-                foundUp = true;
-            }
+            lastGoodCeilingY = highestCeilingY;
+            ceilingTimer = 0f;
+        }
+        else
+        {
+            ceilingTimer += Time.fixedDeltaTime;
+            if (ceilingTimer <= memoryTime)
+                highestCeilingY = lastGoodCeilingY;
+            else
+                highestCeilingY = target.position.y + fallbackDistance;
         }
 
-        // ต้องมีทั้งบนและล่างถึงจะถือว่า "bounds ดี"
-        return foundDown && foundUp;
+        // 3. คำนวณความสูงและเป้าหมาย
+        float currentLevelHeight = highestCeilingY - lowestFloorY;
+        float t = Mathf.InverseLerp(minHeight, maxHeight, currentLevelHeight);
+        float targetZ = Mathf.Lerp(minZ, maxZ, t);
+        float targetY = (lowestFloorY + highestCeilingY) / 2f;
+
+        // 4. สั่งกล้องขยับ (แยกความเร็ว Zoom ออกมาให้เนียนขึ้น)
+        Vector3 targetPos = new Vector3(
+            target.position.x,
+            Mathf.Lerp(transform.position.y, targetY, Time.fixedDeltaTime * smoothSpeed),
+            Mathf.Lerp(transform.position.z, targetZ, Time.fixedDeltaTime * zoomSpeed) // ซูมแยกกันละ
+        );
+
+        transform.position = targetPos;
     }
 }
