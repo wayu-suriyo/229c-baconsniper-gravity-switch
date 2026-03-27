@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8446942054335545892}
   - component: {fileID: 3513174431742982763}
   - component: {fileID: 1084809410089016334}
+  - component: {fileID: 3233100568021823137}
   m_Layer: 6
   m_Name: Ground
   m_TagString: Untagged
@@ -112,3 +113,16 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3233100568021823137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7140367868164999497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0ddb574b9af4bf428e05a71b15e94fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutoTile
+  textureSize: 2

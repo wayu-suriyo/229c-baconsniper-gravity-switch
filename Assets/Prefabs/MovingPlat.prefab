@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6184223080863800148}
   - component: {fileID: 7057687433567072113}
   - component: {fileID: 2206993783667334044}
+  - component: {fileID: 8922998799790125478}
   m_Layer: 7
   m_Name: plat
   m_TagString: Untagged
@@ -125,6 +126,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adfcacf354c78414e855ac18147a4f11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlatformStick
+--- !u!114 &8922998799790125478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756257361667959098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0ddb574b9af4bf428e05a71b15e94fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutoTile
+  textureSize: 2
 --- !u!1 &7908311522891386419
 GameObject:
   m_ObjectHideFlags: 0
