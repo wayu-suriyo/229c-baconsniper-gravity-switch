@@ -143,7 +143,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BoarderColor: {r: 0.7211726, g: 0, b: 2.9960787, a: 1}
-    - _Boarder_Color: {r: 0, g: 2.9039745, b: 4, a: 0.6941177}
+    - _Boarder_Color: {r: 0, g: 13.081788, b: 17.975697, a: 0.6941177}
     - _Color: {r: 0, g: 0.628142, b: 0.69886005, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

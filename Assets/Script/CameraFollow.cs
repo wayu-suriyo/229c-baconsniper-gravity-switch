@@ -19,7 +19,6 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
-        // แก้ให้ชื่อตัวแปรตรงกัน
         playerController = target.GetComponent<PlayerControl>();
     }
 
