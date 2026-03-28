@@ -52,7 +52,6 @@ public class GameManager : MonoBehaviour
             StopTimer();
             ShowLevelComplete();
 
-            Debug.Log("Hack: บังคับจบด่านด้วย New Input System เรียบร้อย!");
         }
     }
 
