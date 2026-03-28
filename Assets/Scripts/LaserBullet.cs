@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class LaserBullet : MonoBehaviour
 {
-    public float lifeTime = 3f; 
+    public float lifeTime = 3f;
 
     [Header("Hit Audio")]
-    public AudioClip playerHitSound; 
+    public AudioClip playerHitSound;
     [Range(0f, 1f)]
     public float soundVolume = 0.5f;
 
@@ -16,9 +16,14 @@ public class LaserBullet : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        if (other.GetComponent<CameraFocusZone>() != null)
+        {
+            return;
+        }
+
         if (other.CompareTag("Player"))
         {
-                    if (playerHitSound != null)
+            if (playerHitSound != null)
             {
                 AudioSource.PlayClipAtPoint(playerHitSound, transform.position, soundVolume);
             }
@@ -29,8 +34,12 @@ public class LaserBullet : MonoBehaviour
                 respawn.Respawn();
             }
         }
+        else if (other.GetComponent<SmashPlatform>() != null)
+        {
+            Destroy(other.gameObject);
+        }
 
-        if (!other.CompareTag("Coin"))
+        if (!other.CompareTag("Coin") && !other.CompareTag("GravityPad"))
         {
             Destroy(gameObject);
         }

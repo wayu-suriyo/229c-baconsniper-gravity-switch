@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8808599294487452907}
   m_Layer: 7
   m_Name: GravPlat
-  m_TagString: Untagged
+  m_TagString: GravityPad
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

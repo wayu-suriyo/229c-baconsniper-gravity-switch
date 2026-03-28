@@ -11,6 +11,7 @@ public class TurretTrap : MonoBehaviour
     [Header("Detection Settings")]
     public float detectRange = 10f;
     public float viewAngle = 90f;
+    public LayerMask obstacleLayer;
 
     [Header("Tracking Settings")]
     public float turnSpeed = 5f;
@@ -37,10 +38,7 @@ public class TurretTrap : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.instance != null && !GameManager.instance.isGameActive)
-        {
-            return;
-        }
+        if (GameManager.instance != null && !GameManager.instance.isGameActive) return;
 
         canSeePlayer = false;
 
@@ -48,7 +46,6 @@ public class TurretTrap : MonoBehaviour
         {
             Vector3 directionToPlayer = target.position - transform.position;
             directionToPlayer.z = 0f;
-
             float distance = directionToPlayer.magnitude;
 
             if (distance <= detectRange)
@@ -57,20 +54,35 @@ public class TurretTrap : MonoBehaviour
 
                 if (angle <= viewAngle / 2f)
                 {
-                    canSeePlayer = true;
+                    RaycastHit[] hits = Physics.RaycastAll(transform.position, directionToPlayer.normalized, distance, obstacleLayer, QueryTriggerInteraction.Ignore);
+                    bool viewBlocked = false;
 
-                    if (directionToPlayer != Vector3.zero)
+                    foreach (RaycastHit hit in hits)
                     {
-                        Quaternion lookRotation = Quaternion.LookRotation(directionToPlayer);
-                        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
+                        if (!hit.collider.CompareTag("GravityPad"))
+                        {
+                            viewBlocked = true;
+                            break;
+                        }
                     }
 
-                    float aimAngle = Vector3.Angle(transform.forward, directionToPlayer.normalized);
-
-                    if (aimAngle <= 5f && Time.time >= nextFireTime)
+                    if (!viewBlocked)
                     {
-                        Shoot();
-                        nextFireTime = Time.time + fireRate;
+                        canSeePlayer = true;
+
+                        if (directionToPlayer != Vector3.zero)
+                        {
+                            Quaternion lookRotation = Quaternion.LookRotation(directionToPlayer);
+                            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
+                        }
+
+                        float aimAngle = Vector3.Angle(transform.forward, directionToPlayer.normalized);
+
+                        if (aimAngle <= 5f && Time.time >= nextFireTime)
+                        {
+                            Shoot();
+                            nextFireTime = Time.time + fireRate;
+                        }
                     }
                 }
             }
@@ -89,15 +101,9 @@ public class TurretTrap : MonoBehaviour
         {
             GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
             Rigidbody rb = bullet.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.AddForce(firePoint.forward * fireForce, ForceMode.Impulse);
-            }
+            if (rb != null) rb.AddForce(firePoint.forward * fireForce, ForceMode.Impulse);
 
-            if (shootSound != null)
-            {
-                AudioSource.PlayClipAtPoint(shootSound, transform.position, volume);
-            }
+            if (shootSound != null) AudioSource.PlayClipAtPoint(shootSound, transform.position, volume);
         }
     }
 

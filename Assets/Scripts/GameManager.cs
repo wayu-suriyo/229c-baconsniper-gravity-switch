@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.SceneManagement; 
+using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,8 +16,8 @@ public class GameManager : MonoBehaviour
     public GameObject finishLineObject;
 
     [Header("Level Complete UI")]
-    public GameObject levelCompletePanel; 
-    public TMP_Text summaryTimeText;      
+    public GameObject levelCompletePanel;
+    public TMP_Text summaryTimeText;
 
     private int currentScore = 0;
     private int totalCoins = 0;
@@ -28,7 +29,6 @@ public class GameManager : MonoBehaviour
         totalCoins = GameObject.FindGameObjectsWithTag("Coin").Length;
 
         if (finishLineObject != null) finishLineObject.SetActive(false);
-
         if (levelCompletePanel != null) levelCompletePanel.SetActive(false);
 
         UpdateScoreUI();
@@ -40,6 +40,19 @@ public class GameManager : MonoBehaviour
         {
             currentTime += Time.deltaTime;
             UpdateTimeUI();
+        }
+
+        if (Keyboard.current != null && Keyboard.current.f9Key.wasPressedThisFrame)
+        {
+            currentScore = totalCoins; 
+            UpdateScoreUI();
+
+            if (finishLineObject != null) finishLineObject.SetActive(true); 
+
+            StopTimer();
+            ShowLevelComplete();
+
+            Debug.Log("Hack: บังคับจบด่านด้วย New Input System เรียบร้อย!");
         }
     }
 

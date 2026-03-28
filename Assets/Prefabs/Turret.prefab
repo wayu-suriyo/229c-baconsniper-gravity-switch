@@ -289,6 +289,9 @@ MonoBehaviour:
   fireRate: 1.5
   detectRange: 10
   viewAngle: 180
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
   turnSpeed: 10
   shootSound: {fileID: 8300000, guid: d7c3865d9a24e3f47bb110e0fd509f75, type: 3}
   volume: 0.4
